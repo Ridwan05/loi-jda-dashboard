@@ -13,7 +13,10 @@ Open the URL printed in the terminal, usually `http://localhost:3000/`.
 ## Supabase
 
 1. Run `supabase-setup.sql` in Supabase Dashboard > SQL Editor.
-2. Put your project URL and anon key in `public/config.js`.
+2. For Vercel, add these project environment variables:
+   - `SUPABASE_URL`
+   - `SUPABASE_ANON_KEY`
+3. The Vercel build writes these into `dist/config.js`.
 
 ## Vercel
 
