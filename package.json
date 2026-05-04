@@ -8,5 +8,8 @@
     "dev": "powershell -ExecutionPolicy Bypass -File ./start.ps1",
     "start": "powershell -ExecutionPolicy Bypass -File ./start.ps1",
     "vercel-build": "node build.js"
+  },
+  "devDependencies": {
+    "supabase": "^2.98.1"
   }
 }
