@@ -13,7 +13,7 @@ const HEADERS = {
 const DB_TABLES = {
   projects: {
     name: "projects",
-    columns: ["id", "name", "developer", "state", "stage", "clusterLead", "rag", "size"],
+    columns: ["id", "name", "developer", "state", "stage", "clusterLead", "rag", "size", "connections", "connectionsInstalled", "dailyRate", "loi", "jda", "credit", "fc", "stageStart", "targetCompletion", "actualCompletion", "subsidyExpected", "subsidyReceived", "capexPerConn", "arpu", "opex", "issue", "owner", "lastUpdate", "targetClose", "timeToFirstPower", "updateCompliance", "evidenceCompliance"],
   },
   team: {
     name: "team_members",
