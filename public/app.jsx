@@ -115,6 +115,7 @@ async function dbSet(table, payload) {
   if (!SUPABASE_URL || !SUPABASE_KEY) return;
   const config = DB_TABLES[table];
   const rows = payload.map(row => pickColumns(row, config.columns));
+  console.log(`[db] ${table} upsert payload:`, JSON.stringify(rows[0]));
   const ids = rows.map(row => row.id).filter(id => id != null);
   const deleteFilter = ids.length ? `not.in.(${ids.join(",")})` : "not.is.null";
 
@@ -214,7 +215,7 @@ function useSupabaseTable(table, seed) {
   const persist = useCallback((updater) => {
     setData(prev => {
       const next = typeof updater === "function" ? updater(prev) : updater;
-      dbSet(table, next).catch(e => console.error(`[db] ${table}:`, e));
+      dbSet(table, next).catch(e => { console.error(`[db] ${table}:`, e); setError(e.message); });
       return next;
     });
   }, [table]);
