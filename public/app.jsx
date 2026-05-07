@@ -294,6 +294,7 @@ function App() {
   const [tab, setTab] = useState("pipeline");
   const [viewMode, setViewMode] = useState("list");
   const [deployViewMode, setDeployViewMode] = useState("list");
+  const [teamViewMode, setTeamViewMode] = useState("grid");
   const [filterStage, setFilterStage] = useState("All");
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState("");
@@ -560,39 +561,45 @@ function App() {
 
         {/* ══ TEAM PERFORMANCE ══ */}
         {tab === "team" && (<>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
             <SectionHeader label="TEAM PERFORMANCE"/>
-            <button onClick={()=>{setMForm(blankMember());setTeamModal("add");}} style={{background:"#1a2a4a",color:"#fff",border:"none",borderRadius:8,padding:"8px 18px",cursor:"pointer",fontWeight:700,fontSize:12,marginBottom:14}}>+ Add Member</button>
+            <div style={{display:"flex",gap:8,alignItems:"center"}}>
+              <div style={{display:"flex",background:"#fff",borderRadius:8,overflow:"hidden",border:"1.5px solid #dde"}}>{[["list","☰"],["grid","⊞"]].map(([m,icon])=><button key={m} onClick={()=>setTeamViewMode(m)} style={{background:teamViewMode===m?"#1a2a4a":"transparent",color:teamViewMode===m?"#fff":"#888",border:"none",padding:"7px 13px",cursor:"pointer",fontSize:16}}>{icon}</button>)}</div>
+              <button onClick={()=>{setMForm(blankMember());setTeamModal("add");}} style={{background:"#1a2a4a",color:"#fff",border:"none",borderRadius:8,padding:"8px 18px",cursor:"pointer",fontWeight:700,fontSize:12}}>+ Add Member</button>
+            </div>
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:14,marginBottom:22}}>
-            {team.map(m=>(
-              <div key={m.id} style={{background:"#fff",borderRadius:10,padding:18,boxShadow:"0 2px 8px rgba(0,0,0,0.07)",borderTop:`3px solid ${RAG_C[m.rag]}`}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
-                  <div><div style={{fontWeight:800,fontSize:14,color:"#1a2a4a"}}>{m.name}</div><div style={{fontSize:11,color:"#888"}}>{m.role}</div></div>
-                  <div style={{display:"flex",flexDirection:"column",gap:4,alignItems:"flex-end"}}><RagBadge status={m.rag}/><div><button onClick={()=>{setMForm({...m});setTeamModal(m.id);}} style={EDIT_BTN}>✏️</button><button onClick={()=>setConfirmDelete({type:"member",id:m.id,label:m.name})} style={DEL_BTN}>🗑️</button></div></div>
+          {teamViewMode === "grid" ? (
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:14}}>
+              {team.map(m=>(
+                <div key={m.id} style={{background:"#fff",borderRadius:10,padding:18,boxShadow:"0 2px 8px rgba(0,0,0,0.07)",borderTop:`3px solid ${RAG_C[m.rag]}`}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+                    <div><div style={{fontWeight:800,fontSize:14,color:"#1a2a4a"}}>{m.name}</div><div style={{fontSize:11,color:"#888"}}>{m.role}</div></div>
+                    <div style={{display:"flex",flexDirection:"column",gap:4,alignItems:"flex-end"}}><RagBadge status={m.rag}/><div><button onClick={()=>{setMForm({...m});setTeamModal(m.id);}} style={EDIT_BTN}>✏️</button><button onClick={()=>setConfirmDelete({type:"member",id:m.id,label:m.name})} style={DEL_BTN}>🗑️</button></div></div>
+                  </div>
+                  {[["Projects Assigned",m.assigned,false],["Tasks Due",m.tasksDue,false],["Overdue Tasks",m.overdue,true]].map(([k,v,warn])=><div key={k} style={{display:"flex",justifyContent:"space-between",padding:"4px 0",borderBottom:"1px solid #f0f0f0"}}><span style={{fontSize:12,color:"#666"}}>{k}</span><span style={{fontSize:12,fontWeight:700,color:warn&&v>0?"#dc2626":"#1a2a4a"}}>{v}</span></div>)}
+                  <div style={{marginTop:10}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:10,color:"#888"}}>Update Compliance</span><span style={{fontSize:11,fontWeight:700,color:m.compliance>=90?"#3a9e5f":m.compliance>=70?"#d97706":"#dc2626"}}>{m.compliance}%</span></div><ProgressBar value={m.compliance} max={100}/></div>
                 </div>
-                {[["Projects Assigned",m.assigned,false],["Tasks Due",m.tasksDue,false],["Overdue Tasks",m.overdue,true]].map(([k,v,warn])=><div key={k} style={{display:"flex",justifyContent:"space-between",padding:"4px 0",borderBottom:"1px solid #f0f0f0"}}><span style={{fontSize:12,color:"#666"}}>{k}</span><span style={{fontSize:12,fontWeight:700,color:warn&&v>0?"#dc2626":"#1a2a4a"}}>{v}</span></div>)}
-                <div style={{marginTop:10}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:10,color:"#888"}}>Update Compliance</span><span style={{fontSize:11,fontWeight:700,color:m.compliance>=90?"#3a9e5f":m.compliance>=70?"#d97706":"#dc2626"}}>{m.compliance}%</span></div><ProgressBar value={m.compliance} max={100}/></div>
-              </div>
-            ))}
-          </div>
-          <div style={{background:"#fff",borderRadius:10,overflow:"hidden",boxShadow:"0 2px 8px rgba(0,0,0,0.07)"}}>
-            <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
-              <thead><tr style={{background:"#1a2a4a",color:"#fff"}}>{["NAME","ROLE","PROJECTS","TASKS DUE","OVERDUE","UPDATE COMPLIANCE","RAG",""].map(h=><th key={h} style={{padding:"10px 14px",textAlign:"left",fontSize:10,fontWeight:800,letterSpacing:0.8}}>{h}</th>)}</tr></thead>
-              <tbody>
-                {team.map((m,i)=><tr key={m.id} style={{background:i%2===0?"#f7f9fc":"#fff",borderBottom:"1px solid #eef"}}>
-                  <td style={{padding:"10px 14px",fontWeight:700}}>{m.name}</td>
-                  <td style={{padding:"10px 14px",color:"#666"}}>{m.role}</td>
-                  <td style={{padding:"10px 14px",textAlign:"center"}}>{m.assigned}</td>
-                  <td style={{padding:"10px 14px",textAlign:"center"}}>{m.tasksDue}</td>
-                  <td style={{padding:"10px 14px",textAlign:"center",color:m.overdue>0?"#dc2626":"#3a9e5f",fontWeight:700}}>{m.overdue}</td>
-                  <td style={{padding:"10px 14px"}}><span style={{color:m.compliance>=90?"#3a9e5f":m.compliance>=70?"#d97706":"#dc2626",fontWeight:700}}>{m.compliance}%</span></td>
-                  <td style={{padding:"10px 14px"}}><RagBadge status={m.rag}/></td>
-                  <td style={{padding:"10px 14px",whiteSpace:"nowrap"}}><button onClick={()=>{setMForm({...m});setTeamModal(m.id);}} style={EDIT_BTN}>✏️</button><button onClick={()=>setConfirmDelete({type:"member",id:m.id,label:m.name})} style={DEL_BTN}>🗑️</button></td>
-                </tr>)}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{background:"#fff",borderRadius:10,overflow:"hidden",boxShadow:"0 2px 8px rgba(0,0,0,0.07)"}}>
+              <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
+                <thead><tr style={{background:"#1a2a4a",color:"#fff"}}>{["NAME","ROLE","PROJECTS","TASKS DUE","OVERDUE","UPDATE COMPLIANCE","RAG",""].map(h=><th key={h} style={{padding:"10px 14px",textAlign:"left",fontSize:10,fontWeight:800,letterSpacing:0.8}}>{h}</th>)}</tr></thead>
+                <tbody>
+                  {team.map((m,i)=><tr key={m.id} style={{background:i%2===0?"#f7f9fc":"#fff",borderBottom:"1px solid #eef"}}>
+                    <td style={{padding:"10px 14px",fontWeight:700}}>{m.name}</td>
+                    <td style={{padding:"10px 14px",color:"#666"}}>{m.role}</td>
+                    <td style={{padding:"10px 14px",textAlign:"center"}}>{m.assigned}</td>
+                    <td style={{padding:"10px 14px",textAlign:"center"}}>{m.tasksDue}</td>
+                    <td style={{padding:"10px 14px",textAlign:"center",color:m.overdue>0?"#dc2626":"#3a9e5f",fontWeight:700}}>{m.overdue}</td>
+                    <td style={{padding:"10px 14px"}}><span style={{color:m.compliance>=90?"#3a9e5f":m.compliance>=70?"#d97706":"#dc2626",fontWeight:700}}>{m.compliance}%</span></td>
+                    <td style={{padding:"10px 14px"}}><RagBadge status={m.rag}/></td>
+                    <td style={{padding:"10px 14px",whiteSpace:"nowrap"}}><button onClick={()=>{setMForm({...m});setTeamModal(m.id);}} style={EDIT_BTN}>✏️</button><button onClick={()=>setConfirmDelete({type:"member",id:m.id,label:m.name})} style={DEL_BTN}>🗑️</button></td>
+                  </tr>)}
+                </tbody>
+              </table>
+            </div>
+          )}
         </>)}
 
         {/* ══ MANAGEMENT SUPPORT ══ */}
