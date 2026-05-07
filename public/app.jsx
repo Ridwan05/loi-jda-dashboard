@@ -17,7 +17,7 @@ const DB_TABLES = {
   },
   team: {
     name: "team_members",
-    columns: ["id", "name", "role", "assigned", "tasksDue"],
+    columns: ["id", "name", "role", "assigned"],
   },
   issues: {
     name: "issues",
@@ -74,7 +74,7 @@ function defaultRow(table, row) {
   }
 
   if (table === "team") {
-    return { id: row.id, name: "", role: "Cluster Lead", assigned: 0, tasksDue: 0, overdue: 0, compliance: 100, rag: "Green" };
+    return { id: row.id, name: "", role: "Cluster Lead", assigned: 0, tasksDue: 0, pendingtasks: 0, completedtasks: 0, overdue: 0, compliance: 100, rag: "Green" };
   }
 
   if (table === "issues") {
@@ -602,7 +602,7 @@ function App() {
                     <div><div style={{fontWeight:800,fontSize:14,color:"#1a2a4a"}}>{m.name}</div><div style={{fontSize:11,color:"#888"}}>{m.role}</div></div>
                     <div style={{display:"flex",flexDirection:"column",gap:4,alignItems:"flex-end"}}><RagBadge status={m.rag}/><div><button onClick={()=>{setMForm({...m});setTeamModal(m.id);}} style={EDIT_BTN}>✏️</button><button onClick={()=>setConfirmDelete({type:"member",id:m.id,label:m.name})} style={DEL_BTN}>🗑️</button></div></div>
                   </div>
-                  {[["Projects Assigned",m.assigned,false],["Tasks Due",m.tasksDue,false],["Overdue Tasks",m.overdue,true]].map(([k,v,warn])=><div key={k} style={{display:"flex",justifyContent:"space-between",padding:"4px 0",borderBottom:"1px solid #f0f0f0"}}><span style={{fontSize:12,color:"#666"}}>{k}</span><span style={{fontSize:12,fontWeight:700,color:warn&&v>0?"#dc2626":"#1a2a4a"}}>{v}</span></div>)}
+                  {[["Projects Assigned",m.assigned,false],["Overdue Tasks",m.tasksDue,true],["Pending Tasks",m.pendingtasks||0,false],["Completed Tasks",m.completedtasks||0,false]].map(([k,v,warn])=><div key={k} style={{display:"flex",justifyContent:"space-between",padding:"4px 0",borderBottom:"1px solid #f0f0f0"}}><span style={{fontSize:12,color:"#666"}}>{k}</span><span style={{fontSize:12,fontWeight:700,color:warn&&v>0?"#dc2626":"#1a2a4a"}}>{v}</span></div>)}
                   <div style={{marginTop:10}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:10,color:"#888"}}>Update Compliance</span><span style={{fontSize:11,fontWeight:700,color:m.compliance>=90?"#3a9e5f":m.compliance>=70?"#d97706":"#dc2626"}}>{m.compliance}%</span></div><ProgressBar value={m.compliance} max={100}/></div>
                 </div>
               ))}
@@ -610,14 +610,15 @@ function App() {
           ) : (
             <div style={{background:"#fff",borderRadius:10,overflow:"hidden",boxShadow:"0 2px 8px rgba(0,0,0,0.07)"}}>
               <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
-                <thead><tr style={{background:"#1a2a4a",color:"#fff"}}>{["NAME","ROLE","PROJECTS","TASKS DUE","OVERDUE","UPDATE COMPLIANCE","RAG",""].map(h=><th key={h} style={{padding:"10px 14px",textAlign:"left",fontSize:10,fontWeight:800,letterSpacing:0.8}}>{h}</th>)}</tr></thead>
+                <thead><tr style={{background:"#1a2a4a",color:"#fff"}}>{["NAME","ROLE","PROJECTS","OVERDUE","PENDING","COMPLETED","UPDATE COMPLIANCE","RAG",""].map(h=><th key={h} style={{padding:"10px 14px",textAlign:"left",fontSize:10,fontWeight:800,letterSpacing:0.8}}>{h}</th>)}</tr></thead>
                 <tbody>
                   {team.map((m,i)=><tr key={m.id} style={{background:i%2===0?"#f7f9fc":"#fff",borderBottom:"1px solid #eef"}}>
                     <td style={{padding:"10px 14px",fontWeight:700}}>{m.name}</td>
                     <td style={{padding:"10px 14px",color:"#666"}}>{m.role}</td>
                     <td style={{padding:"10px 14px",textAlign:"center"}}>{m.assigned}</td>
-                    <td style={{padding:"10px 14px",textAlign:"center"}}>{m.tasksDue}</td>
-                    <td style={{padding:"10px 14px",textAlign:"center",color:m.overdue>0?"#dc2626":"#3a9e5f",fontWeight:700}}>{m.overdue}</td>
+                    <td style={{padding:"10px 14px",textAlign:"center",color:m.tasksDue>0?"#dc2626":"#3a9e5f",fontWeight:700}}>{m.tasksDue||0}</td>
+                    <td style={{padding:"10px 14px",textAlign:"center",color:"#6b7280",fontWeight:700}}>{m.pendingtasks||0}</td>
+                    <td style={{padding:"10px 14px",textAlign:"center",color:"#3a9e5f",fontWeight:700}}>{m.completedtasks||0}</td>
                     <td style={{padding:"10px 14px"}}><span style={{color:m.compliance>=90?"#3a9e5f":m.compliance>=70?"#d97706":"#dc2626",fontWeight:700}}>{m.compliance}%</span></td>
                     <td style={{padding:"10px 14px"}}><RagBadge status={m.rag}/></td>
                     <td style={{padding:"10px 14px",whiteSpace:"nowrap"}}><button onClick={()=>{setMForm({...m});setTeamModal(m.id);}} style={EDIT_BTN}>✏️</button><button onClick={()=>setConfirmDelete({type:"member",id:m.id,label:m.name})} style={DEL_BTN}>🗑️</button></td>
@@ -740,7 +741,10 @@ function App() {
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
           <div><label style={LBL}>Name</label><input value={mForm.name} onChange={e=>setMForm(f=>({...f,name:e.target.value}))} style={INPUT}/></div>
           <div><label style={LBL}>Role</label><select value={mForm.role} onChange={e=>setMForm(f=>({...f,role:e.target.value}))} style={INPUT}>{ROLES.map(r=><option key={r}>{r}</option>)}</select></div>
-          {[["Projects Assigned","assigned"],["Tasks Due","tasksDue"],["Overdue Tasks","overdue"],["Update Compliance (%)","compliance"]].map(([l,k])=><div key={k}><label style={LBL}>{l}</label><input type="number" value={mForm[k]} onChange={e=>setMForm(f=>({...f,[k]:Number(e.target.value)}))} style={INPUT}/></div>)}
+          {[["Projects Assigned","assigned"],["Update Compliance (%)","compliance"]].map(([l,k])=><div key={k}><label style={LBL}>{l}</label><input type="number" value={mForm[k]} onChange={e=>setMForm(f=>({...f,[k]:Number(e.target.value)}))} style={INPUT}/></div>)}
+          <div style={{gridColumn:"span 2",background:"#f7f9fa",borderRadius:8,padding:"10px 14px",display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+            {[["Overdue Tasks",mForm.tasksDue||0,"#dc2626"],["Pending Tasks",mForm.pendingtasks||0,"#6b7280"],["Completed Tasks",mForm.completedtasks||0,"#3a9e5f"]].map(([l,v,c])=><div key={l}><div style={{fontSize:10,color:"#aaa",fontWeight:700,marginBottom:2}}>{l.toUpperCase()}</div><div style={{fontSize:18,fontWeight:900,color:c}}>{v}</div></div>)}
+          </div>
           <div><label style={LBL}>RAG</label><select value={mForm.rag} onChange={e=>setMForm(f=>({...f,rag:e.target.value}))} style={INPUT}>{["Green","Amber","Red"].map(r=><option key={r}>{r}</option>)}</select></div>
         </div>
       </Modal>}

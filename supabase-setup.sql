@@ -47,7 +47,9 @@ create table public.team_members (
   name text not null,
   role text,
   assigned integer default 0,
-  "tasksDue" integer default 0,
+  "tasksDue" integer default 0,     -- auto-maintained: count of Overdue tasks assigned to member
+  pendingtasks integer default 0,   -- auto-maintained: count of Pending tasks assigned to member
+  completedtasks integer default 0, -- auto-maintained: count of Completed tasks assigned to member
   updated_at timestamptz not null default now()
 );
 
@@ -138,6 +140,46 @@ for each row execute function public.set_updated_at();
 create trigger set_tasks_updated_at
 before update on public.tasks
 for each row execute function public.set_updated_at();
+
+-- Sync task counts on team_members whenever a task is inserted, updated, or deleted
+create or replace function public.sync_member_task_counts()
+returns trigger language plpgsql as $$
+declare
+  old_name text;
+  new_name text;
+begin
+  if tg_op = 'DELETE' then
+    old_name := old."assignedTo";
+  elsif tg_op = 'INSERT' then
+    new_name := new."assignedTo";
+  else
+    old_name := old."assignedTo";
+    new_name := new."assignedTo";
+  end if;
+
+  if old_name is not null and (tg_op = 'DELETE' or old_name is distinct from new_name) then
+    update public.team_members set
+      "tasksDue"     = (select count(*) from public.tasks where "assignedTo" = old_name and status = 'Overdue'),
+      pendingtasks   = (select count(*) from public.tasks where "assignedTo" = old_name and status = 'Pending'),
+      completedtasks = (select count(*) from public.tasks where "assignedTo" = old_name and status = 'Completed')
+    where name = old_name;
+  end if;
+
+  if new_name is not null then
+    update public.team_members set
+      "tasksDue"     = (select count(*) from public.tasks where "assignedTo" = new_name and status = 'Overdue'),
+      pendingtasks   = (select count(*) from public.tasks where "assignedTo" = new_name and status = 'Pending'),
+      completedtasks = (select count(*) from public.tasks where "assignedTo" = new_name and status = 'Completed')
+    where name = new_name;
+  end if;
+
+  return null;
+end;
+$$;
+
+create trigger tasks_sync_member_counts
+after insert or update or delete on public.tasks
+for each row execute function public.sync_member_task_counts();
 
 alter table public.projects enable row level security;
 alter table public.team_members enable row level security;
