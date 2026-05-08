@@ -339,8 +339,6 @@ function App() {
   const [teamModal, setTeamModal] = useState(null);
   const [taskModal, setTaskModal] = useState(null);
   const [activityModal, setActivityModal] = useState(null);
-  const [activityStageFilter, setActivityStageFilter] = useState("All");
-  const [activityCategoryFilter, setActivityCategoryFilter] = useState("All");
 
   const blankProject = () => ({ id: Date.now(), name: "", developer: "", state: "", stage: STAGES_LIST[0], clusterLead: "", rag: "Green", loi: false, jda: false, credit: false, fc: false, size: 0, connections: 0, pvCapacity: 0, startDate: "", targetCompletion: "", actualCompletion: "", subsidyExpected: 0, capexPerConn: 0, duration: 0, issue: "", lastUpdate: today(), targetClose: "", updateCompliance: 100, evidenceCompliance: 100, jdacost: 0 });
   const blankIssue = () => ({ id: Date.now(), project: "", category: ISSUE_CATS[0], description: "", owner: "", raised: today(), due: "", status: "Open", rag: "Amber" });
@@ -731,34 +729,15 @@ function App() {
 
         {/* ══ ACTIVITIES DB ══ */}
         {tab === "activ" && (<>
-          <div className="rsp-filter-bar" style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14,flexWrap:"wrap",gap:8}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
             <SectionHeader label="ACTIVITIES"/>
-            <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
-              <select value={activityStageFilter} onChange={e=>setActivityStageFilter(e.target.value)} style={{...INPUT,width:200,fontSize:12}}>
-                <option value="All">All Stages</option>
-                {TASK_STAGES.map(s=><option key={s}>{s}</option>)}
-              </select>
-              <select value={activityCategoryFilter} onChange={e=>setActivityCategoryFilter(e.target.value)} style={{...INPUT,width:180,fontSize:12}}>
-                <option value="All">All Categories</option>
-                {activityCategories.map(c=><option key={c}>{c}</option>)}
-              </select>
-              <button onClick={()=>{setAForm(blankActivity());setActivityModal("add");}} style={{background:"#3b6cb7",color:"#fff",border:"none",borderRadius:8,padding:"8px 18px",cursor:"pointer",fontWeight:700,fontSize:12}}>+ Add Activity</button>
-            </div>
-          </div>
-          <div className="rsp-cards-4" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:22}}>
-            {[["Total",activitiesDb.length,"#1a2a4a"],["Preliminary Assessment",activitiesDb.filter(a=>a.projectstage==="Preliminary Assessment").length,"#3a9e5f"],["Project Preparation",activitiesDb.filter(a=>a.projectstage==="Project Preparation").length,"#3b6cb7"],["Project Development / Finance",activitiesDb.filter(a=>a.projectstage==="Project Development"||a.projectstage==="Project Finance").length,"#e07b39"]].map(([label,count,color])=>(
-              <div key={label} style={{background:"#fff",borderRadius:10,padding:"16px 18px",boxShadow:"0 2px 8px rgba(0,0,0,0.07)",borderTop:`3px solid ${color}`}}>
-                <div style={{fontSize:9,color:"#aaa",fontWeight:800,letterSpacing:1,marginBottom:6}}>{label.toUpperCase()}</div>
-                <div style={{fontSize:30,fontWeight:900,color:color,lineHeight:1}}>{count}</div>
-                <div style={{fontSize:10,color:"#888",marginTop:4}}>activit{count!==1?"ies":"y"}</div>
-              </div>
-            ))}
+            <button onClick={()=>{setAForm(blankActivity());setActivityModal("add");}} style={{background:"#3b6cb7",color:"#fff",border:"none",borderRadius:8,padding:"8px 18px",cursor:"pointer",fontWeight:700,fontSize:12}}>+ Add Activity</button>
           </div>
           <div style={{background:"#fff",borderRadius:10,overflowX:"auto",boxShadow:"0 2px 8px rgba(0,0,0,0.07)"}}>
             <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
               <thead><tr style={{background:"#1a2a4a",color:"#fff"}}>{["ACTIVITY NAME","PROJECT STAGE","CATEGORY",""].map(h=><th key={h} style={{padding:"10px 12px",textAlign:"left",fontSize:9,fontWeight:800,letterSpacing:0.7,whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
               <tbody>
-                {filteredActivities.map((a,i)=>(
+                {activitiesDb.map((a,i)=>(
                   <tr key={a.id} style={{background:i%2===0?"#f7f9fc":"#fff",borderBottom:"1px solid #eef"}}>
                     <td style={{padding:"9px 12px",fontWeight:700}}>{a.activityname}</td>
                     <td style={{padding:"9px 12px"}}>{a.projectstage?<StagePill stage={a.projectstage}/>:"—"}</td>
@@ -769,7 +748,7 @@ function App() {
                     </td>
                   </tr>
                 ))}
-                {filteredActivities.length===0&&<tr><td colSpan={4} style={{padding:32,textAlign:"center",color:"#aaa",fontSize:12}}>No activities found. Add one to get started.</td></tr>}
+                {activitiesDb.length===0&&<tr><td colSpan={4} style={{padding:32,textAlign:"center",color:"#aaa",fontSize:12}}>No activities found. Add one to get started.</td></tr>}
               </tbody>
             </table>
           </div>
