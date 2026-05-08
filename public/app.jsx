@@ -385,8 +385,6 @@ function App() {
   const creditCount = projects.filter(p => p.credit).length;
   const filteredProjects = filterStage === "All" ? projects : projects.filter(p => p.stage === filterStage);
   const filteredTasks = tasks.filter(t => (taskFilter === "All" || t.status === taskFilter) && (taskProjectFilter === "All" || t.project === taskProjectFilter));
-  const activityCategories = [...new Set(activitiesDb.map(a => a.activitycategory).filter(Boolean))];
-  const filteredActivities = activitiesDb.filter(a => (activityStageFilter === "All" || a.projectstage === activityStageFilter) && (activityCategoryFilter === "All" || a.activitycategory === activityCategoryFilter));
   const filteredDeployment = deployProjectFilter === "All" ? deployment : deployment.filter(d => d.project === deployProjectFilter);
   const openIssues = issues.filter(i => i.status !== "Resolved").length;
 
