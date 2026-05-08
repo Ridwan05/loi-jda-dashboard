@@ -456,7 +456,7 @@ function App() {
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                   <thead><tr style={{ background: "#1a2a4a", color: "#fff" }}>{["PROJECT","LOI","JDA","CONN.","SIZE","SHARE"].map(h=><th key={h} style={{padding:"9px 10px",textAlign:"left",fontSize:9,fontWeight:800,letterSpacing:0.8}}>{h}</th>)}</tr></thead>
                   <tbody>
-                    {projects.map((p,i)=><tr key={p.id} style={{background:i%2===0?"#f7f9fc":"#fff",borderBottom:"1px solid #eef"}}><td style={{padding:"7px 10px",fontWeight:600,color:"#1a2a4a",fontSize:11}}>{p.name.replace(" MeshGrid","")}</td><td style={{padding:"7px 10px",textAlign:"center"}}><Tick val={p.loi}/></td><td style={{padding:"7px 10px",textAlign:"center"}}><Tick val={p.jda}/></td><td style={{padding:"7px 10px",fontSize:11}}>{fmt(p.connections)}</td><td style={{padding:"7px 10px",fontWeight:700,fontSize:11}}>₦{p.size.toFixed(1)}Bn</td><td style={{padding:"7px 10px",color:"#3b6cb7",fontWeight:700,fontSize:11}}>{totalSize>0?((p.size/totalSize)*100).toFixed(1):0}%</td></tr>)}
+                    {projects.map((p,i)=><tr key={p.id} style={{background:i%2===0?"#f7f9fc":"#fff",borderBottom:"1px solid #eef"}}><td style={{padding:"7px 10px",fontWeight:600,color:"#1a2a4a",fontSize:11}}>{(p.name||"").replace(" MeshGrid","")}</td><td style={{padding:"7px 10px",textAlign:"center"}}><Tick val={p.loi}/></td><td style={{padding:"7px 10px",textAlign:"center"}}><Tick val={p.jda}/></td><td style={{padding:"7px 10px",fontSize:11}}>{fmt(p.connections)}</td><td style={{padding:"7px 10px",fontWeight:700,fontSize:11}}>₦{p.size.toFixed(1)}Bn</td><td style={{padding:"7px 10px",color:"#3b6cb7",fontWeight:700,fontSize:11}}>{totalSize>0?((p.size/totalSize)*100).toFixed(1):0}%</td></tr>)}
                     <tr style={{background:"#1a2a4a",color:"#fff",fontWeight:800}}><td style={{padding:"8px 10px",fontSize:11}}>Total</td><td style={{padding:"8px 10px",textAlign:"center"}}>{loiCount}</td><td style={{padding:"8px 10px",textAlign:"center"}}>{jdaCount}</td><td style={{padding:"8px 10px",fontSize:11}}>{fmt(projects.reduce((s,p)=>s+p.connections,0))}</td><td style={{padding:"8px 10px",fontSize:11}}>₦{totalSize.toFixed(1)}Bn</td><td style={{padding:"8px 10px",fontSize:11}}>100%</td></tr>
                   </tbody>
                 </table>
@@ -575,7 +575,7 @@ function App() {
                   {filteredDeployment.map((site,i)=>(
                     <tr key={site.id} style={{background:i%2===0?"#f7f9fc":"#fff",borderBottom:"1px solid #eef"}}>
                       <td style={{padding:"9px 10px",fontWeight:700}}>{site.sitename}</td>
-                      <td style={{padding:"9px 10px",color:"#555",fontSize:11}}>{site.project.replace(" MeshGrid","")}</td>
+                      <td style={{padding:"9px 10px",color:"#555",fontSize:11}}>{(site.project||"").replace(" MeshGrid","")}</td>
                       <td style={{padding:"9px 10px",color:"#666"}}>{site.state}</td>
                       <td style={{padding:"9px 10px",color:"#666"}}>{site.LGA}</td>
                       <td style={{padding:"9px 10px",fontWeight:700}}>{fmt(site.connections)}</td>
