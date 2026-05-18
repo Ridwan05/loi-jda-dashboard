@@ -102,9 +102,16 @@ function defaultRow(table, row) {
   };
 }
 
+function assertCiTable(name) {
+  if (typeof name !== "string" || !name.endsWith("_ci")) {
+    throw new Error(`Refusing to access "${name}": this app only reads/writes tables with the _ci suffix.`);
+  }
+}
+
 async function dbGet(table, seed) {
   if (!SUPABASE_URL || !SUPABASE_KEY) return null;
   const config = DB_TABLES[table];
+  assertCiTable(config?.name);
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${config.name}?select=*&order=id.asc`, { headers: HEADERS });
   if (!res.ok) {
     const err = await res.text();
@@ -126,6 +133,7 @@ async function dbGet(table, seed) {
 async function dbSet(table, payload) {
   if (!SUPABASE_URL || !SUPABASE_KEY) return;
   const config = DB_TABLES[table];
+  assertCiTable(config?.name);
   const rows = payload.map(row => pickColumns(row, config.columns));
   const ids = rows.map(row => row.id).filter(id => id != null);
 
