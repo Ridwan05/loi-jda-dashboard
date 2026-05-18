@@ -21,7 +21,7 @@ const DB_TABLES = {
   },
   issues: {
     name: "issues_ci",
-    columns: ["id", "project", "owner", "status", "due"],
+    columns: ["id", "project", "category", "description", "owner", "raised", "due", "status", "rag"],
   },
   deployment: {
     name: "deployment_sites_ci",

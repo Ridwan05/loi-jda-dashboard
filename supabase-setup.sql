@@ -52,12 +52,16 @@ create table public.team_members_ci (
 );
 
 create table public.issues_ci (
-  id         bigint primary key,
-  project    text,
-  owner      text,
-  status     text,
-  due        date,
-  updated_at timestamptz not null default now()
+  id          bigint primary key,
+  project     text,
+  category    text default 'Other',
+  description text default '',
+  owner       text,
+  raised      date,
+  due         date,
+  status      text default 'Open',
+  rag         text default 'Amber',
+  updated_at  timestamptz not null default now()
 );
 
 create table public.deployment_sites_ci (
