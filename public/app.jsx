@@ -406,7 +406,7 @@ function App() {
             <div style={{ width: 38, height: 38, background: "#3b6cb7", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 18 }}>D</div>
             <div>
               <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", letterSpacing: 1.5, fontWeight: 700 }}>DREEF · INFRAIQ.AFRICA</div>
-              <div style={{ fontSize: 18, fontWeight: 900, color: "#fff", letterSpacing: 0.3 }}>PROJECT PIPELINE MANAGER <span style={{ marginLeft: 10, fontSize: 10, background: "#3a9e5f", color: "#fff", padding: "3px 10px", borderRadius: 20, fontWeight: 700, verticalAlign: "middle", letterSpacing: 1 }}>MESH GRID</span></div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: "#fff", letterSpacing: 0.3 }}>PROJECT PIPELINE MANAGER <span style={{ marginLeft: 10, fontSize: 10, background: "#3a9e5f", color: "#fff", padding: "3px 10px", borderRadius: 20, fontWeight: 700, verticalAlign: "middle", letterSpacing: 1 }}>C & I</span></div>
             </div>
           </div>
           <div className="rsp-header-right" style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -454,7 +454,7 @@ function App() {
           </div>
 
           <div style={{ marginBottom: 26 }}>
-            <SectionHeader label="MESH GRID BUSINESS MODEL" />
+            <SectionHeader label="C & I BUSINESS MODEL" />
             <div className="rsp-biz-grid" style={{ display: "grid", gridTemplateColumns: "180px 1fr 1fr", gap: 14 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 {[{ label: "TOTAL PROJECT SIZE", value: `₦${totalSize.toFixed(1)}Bn`, bg: "#3b6cb7", icon: "⚡" }, { label: "TOTAL PROJECTS", value: projects.length, bg: "#1a2a4a", icon: "🔋" }].map(c => <div key={c.label} style={{ background: c.bg, borderRadius: 10, padding: "20px 18px", flex: 1 }}><div style={{ fontSize: 28, marginBottom: 8 }}>{c.icon}</div><div style={{ fontSize: 10, color: "rgba(255,255,255,0.65)", fontWeight: 700, letterSpacing: 1 }}>{c.label}</div><div style={{ fontSize: 24, fontWeight: 900, color: "#fff" }}>{c.value}</div></div>)}
@@ -532,7 +532,7 @@ function App() {
 
         {/* ══ KPI DASHBOARD ══ */}
         {tab === "kpi" && (<>
-          <SectionHeader label="KPI DASHBOARD — MESH GRID" />
+          <SectionHeader label="KPI DASHBOARD — C & I" />
           <div className="rsp-kpi-3" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginBottom:14}}>
             <KpiCard label="JDAs Signed" actual={kpis.jdasSigned} target={3} unit="" rag={ragFor(kpis.jdasSigned,3)} detail={`${loiCount} LOIs in pipeline`}/>
             <KpiCard label="LOI → JDA Conversion" actual={kpis.loiToJda} target={80} unit="%" rag={ragFor(kpis.loiToJda,80)} detail={`${jdaCount} of ${loiCount} converted`}/>
@@ -749,7 +749,7 @@ function App() {
       </div>
 
       {/* MODALS */}
-      {projectModal!==null&&<Modal title={projectModal==="add"?"Add Mesh Grid Project":"Edit Project"} onClose={()=>setProjectModal(null)} onSave={saveProject}><ProjectForm form={pForm} setForm={setPForm}/></Modal>}
+      {projectModal!==null&&<Modal title={projectModal==="add"?"Add C & I Project":"Edit Project"} onClose={()=>setProjectModal(null)} onSave={saveProject}><ProjectForm form={pForm} setForm={setPForm}/></Modal>}
 
       {issueModal!==null&&<Modal title={issueModal==="add"?"Log Issue":"Edit Issue"} onClose={()=>setIssueModal(null)} onSave={saveIssue}>
         <div className="rsp-form-2col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
