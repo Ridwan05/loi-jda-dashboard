@@ -127,10 +127,21 @@ async function dbSet(table, payload) {
   if (!SUPABASE_URL || !SUPABASE_KEY) return;
   const config = DB_TABLES[table];
   const rows = payload.map(row => pickColumns(row, config.columns));
-  console.log(`[db] ${table} upsert payload:`, JSON.stringify(rows[0]));
   const ids = rows.map(row => row.id).filter(id => id != null);
-  const deleteFilter = ids.length ? `not.in.(${ids.join(",")})` : "not.is.null";
 
+  if (rows.length > 0) {
+    const upsertRes = await fetch(`${SUPABASE_URL}/rest/v1/${config.name}?on_conflict=id`, {
+      method: "POST",
+      headers: { ...HEADERS, "Prefer": "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify(rows),
+    });
+    if (!upsertRes.ok) {
+      const err = await upsertRes.text();
+      throw new Error(`UPSERT ${config.name} failed: ${upsertRes.status} - ${err}`);
+    }
+  }
+
+  const deleteFilter = ids.length ? `not.in.(${ids.join(",")})` : "not.is.null";
   const deleteRes = await fetch(`${SUPABASE_URL}/rest/v1/${config.name}?id=${deleteFilter}`, {
     method: "DELETE",
     headers: { ...HEADERS, "Prefer": "return=minimal" },
@@ -138,18 +149,6 @@ async function dbSet(table, payload) {
   if (!deleteRes.ok) {
     const err = await deleteRes.text();
     throw new Error(`DELETE ${config.name} failed: ${deleteRes.status} - ${err}`);
-  }
-
-  if (rows.length === 0) return;
-
-  const upsertRes = await fetch(`${SUPABASE_URL}/rest/v1/${config.name}?on_conflict=id`, {
-    method: "POST",
-    headers: { ...HEADERS, "Prefer": "resolution=merge-duplicates,return=minimal" },
-    body: JSON.stringify(rows),
-  });
-  if (!upsertRes.ok) {
-    const err = await upsertRes.text();
-    throw new Error(`UPSERT ${config.name} failed: ${upsertRes.status} - ${err}`);
   }
 }
 
@@ -235,7 +234,11 @@ function useSupabaseTable(table, seed) {
   const persist = useCallback((updater) => {
     setData(prev => {
       const next = typeof updater === "function" ? updater(prev) : updater;
-      dbSet(table, next).catch(e => { console.error(`[db] ${table}:`, e); setError(e.message); });
+      dbSet(table, next).catch(e => {
+        console.error(`[db] ${table}:`, e);
+        setError(e.message);
+        alert(`Save to "${table}" failed — your change did not reach the database.\n\n${e.message}`);
+      });
       return next;
     });
   }, [table]);
