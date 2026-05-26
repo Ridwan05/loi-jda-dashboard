@@ -20,7 +20,6 @@ drop table if exists public.projects_ci         cascade;
 
 create table public.lois (
   id              bigint primary key,
-  name            text   not null,
   developer       text   default '',
   state           text   default '',
   "clusterLead"   text   default '',

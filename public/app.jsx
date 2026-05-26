@@ -13,7 +13,7 @@ const HEADERS = {
 const DB_TABLES = {
   lois: {
     name: "lois",
-    columns: ["id", "name", "developer", "state", "clusterLead", "loiSignedDate", "jda", "jdaSignedDate", "notes"],
+    columns: ["id", "developer", "state", "clusterLead", "loiSignedDate", "jda", "jdaSignedDate", "notes"],
   },
   issues: {
     name: "issues",
@@ -42,7 +42,7 @@ function pickColumns(row, columns) {
 
 function defaultRow(table, row) {
   if (table === "lois") {
-    return { id: row.id, name: "", developer: "", state: "", clusterLead: "", loiSignedDate: "", jda: false, jdaSignedDate: "", notes: "" };
+    return { id: row.id, developer: "", state: "", clusterLead: "", loiSignedDate: "", jda: false, jdaSignedDate: "", notes: "" };
   }
   return { id: row.id, loiId: null, description: "", owner: "", raised: today(), due: "", status: "Open" };
 }
@@ -298,7 +298,7 @@ function App() {
 
   useEffect(() => { setSlaDraft(slaDays); }, [slaDays]);
 
-  const blankLoi = () => ({ id: Date.now(), name: "", developer: "", state: "", clusterLead: "", loiSignedDate: today(), jda: false, jdaSignedDate: "", notes: "" });
+  const blankLoi = () => ({ id: Date.now(), developer: "", state: "", clusterLead: "", loiSignedDate: today(), jda: false, jdaSignedDate: "", notes: "" });
   const blankIssue = (loiId) => ({ id: Date.now(), loiId, description: "", owner: "", raised: today(), due: "", status: "Open" });
 
   const [loiForm, setLoiForm] = useState(blankLoi());
@@ -345,7 +345,6 @@ function App() {
   }
 
   const saveLoi = () => {
-    if (!loiForm.name.trim()) return alert("LOI name is required");
     if (loiForm.jda && !loiForm.jdaSignedDate) return alert("Set the JDA signed date, or untick \"JDA Signed\".");
     const persisted = { ...loiForm, jdaSignedDate: loiForm.jda ? loiForm.jdaSignedDate : "" };
     setLois(ls => loiModal === "add" ? [...ls, { ...persisted, id: Date.now() }] : ls.map(l => l.id === loiModal ? persisted : l));
@@ -454,7 +453,7 @@ function App() {
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
             <thead>
               <tr style={{ background: "#1a2a4a", color: "#fff" }}>
-                {["LOI", "DEVELOPER", "STATE", "LEAD", "LOI SIGNED", "ELAPSED", "REMAINING", "JDA", "STATUS", "ISSUES", ""].map(h => (
+                {["DEVELOPER", "STATE", "LEAD", "LOI SIGNED", "ELAPSED", "REMAINING", "JDA", "STATUS", "ISSUES", ""].map(h => (
                   <th key={h} style={{ padding: "10px 10px", textAlign: "left", fontSize: 9, fontWeight: 800, letterSpacing: 0.8, whiteSpace: "nowrap" }}>{h}</th>
                 ))}
               </tr>
@@ -466,8 +465,7 @@ function App() {
                 const totalCount = (issuesByLoi.get(l.id) || []).length;
                 return (
                   <tr key={l.id} style={{ background: i % 2 === 0 ? "#f7f9fc" : "#fff", borderBottom: "1px solid #eef" }}>
-                    <td style={{ padding: "9px 10px", fontWeight: 700, color: "#1a2a4a" }}>{l.name}</td>
-                    <td style={{ padding: "9px 10px", color: "#666" }}>{l.developer || "—"}</td>
+                    <td style={{ padding: "9px 10px", fontWeight: 700, color: "#1a2a4a" }}>{l.developer || "—"}</td>
                     <td style={{ padding: "9px 10px", color: "#666" }}>{l.state || "—"}</td>
                     <td style={{ padding: "9px 10px", color: "#555" }}>{l.clusterLead || "—"}</td>
                     <td style={{ padding: "9px 10px", color: "#444", whiteSpace: "nowrap" }}>{l.loiSignedDate || "—"}</td>
@@ -484,13 +482,13 @@ function App() {
                     </td>
                     <td style={{ padding: "9px 10px", whiteSpace: "nowrap" }}>
                       <button onClick={() => { setLoiForm({ ...l }); setLoiModal(l.id); }} style={EDIT_BTN}>✏️</button>
-                      <button onClick={() => setConfirmDelete({ type: "loi", id: l.id, label: l.name })} style={DEL_BTN}>🗑️</button>
+                      <button onClick={() => setConfirmDelete({ type: "loi", id: l.id, label: l.developer || `LOI #${l.id}` })} style={DEL_BTN}>🗑️</button>
                     </td>
                   </tr>
                 );
               })}
               {filtered.length === 0 && (
-                <tr><td colSpan={11} style={{ padding: 36, textAlign: "center", color: "#aaa" }}>No LOIs match "{filter}".</td></tr>
+                <tr><td colSpan={10} style={{ padding: 36, textAlign: "center", color: "#aaa" }}>No LOIs match "{filter}".</td></tr>
               )}
             </tbody>
           </table>
@@ -501,7 +499,6 @@ function App() {
       {loiModal !== null && (
         <Modal title={loiModal === "add" ? "Add LOI" : "Edit LOI"} onClose={() => setLoiModal(null)} onSave={saveLoi}>
           <div className="rsp-form-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <div style={{ gridColumn: "span 2" }}><label style={LBL}>LOI Name</label><input value={loiForm.name} onChange={e => setLoiForm(f => ({ ...f, name: e.target.value }))} style={INPUT} placeholder="e.g. Kwali Cluster" /></div>
             <div><label style={LBL}>Developer</label><input value={loiForm.developer} onChange={e => setLoiForm(f => ({ ...f, developer: e.target.value }))} style={INPUT} /></div>
             <div><label style={LBL}>State</label><input value={loiForm.state} onChange={e => setLoiForm(f => ({ ...f, state: e.target.value }))} style={INPUT} /></div>
             <div><label style={LBL}>Cluster Lead</label><input value={loiForm.clusterLead} onChange={e => setLoiForm(f => ({ ...f, clusterLead: e.target.value }))} style={INPUT} /></div>
@@ -522,7 +519,7 @@ function App() {
       {/* ISSUES MODAL — list of issues for one LOI */}
       {issuesModal !== null && activeIssuesLoi && (
         <Modal
-          title={`Issues blocking JDA — ${activeIssuesLoi.name}`}
+          title={`Issues blocking JDA — ${activeIssuesLoi.developer || `LOI #${activeIssuesLoi.id}`}`}
           onClose={() => setIssuesModal(null)}
           wide
         >
