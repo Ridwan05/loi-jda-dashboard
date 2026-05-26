@@ -39,7 +39,7 @@ while (-not $listener) {
 if ($port -ne $startPort) {
   Write-Host "Port $startPort is already in use, using $port instead."
 }
-Write-Host "C&I Pipeline Manager: http://localhost:$port/"
+Write-Host "LOI -> JDA Conversion Tracker: http://localhost:$port/"
 
 try {
   while ($true) {
