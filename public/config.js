@@ -1,4 +1,0 @@
-window.CI_CONFIG = {
-  SUPABASE_URL: "https://nogymxclvnfvssxlfyni.supabase.co",
-  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZ3lteGNsdm5mdnNzeGxmeW5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MTg0MzYsImV4cCI6MjA5MzM5NDQzNn0.VEOAbYAC8D12BW5yT3xRkM4t-5VGd4NCBAe1RVQ7bcE",
-};

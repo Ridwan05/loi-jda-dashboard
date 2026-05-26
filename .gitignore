@@ -3,4 +3,6 @@ node_modules/
 .vercel/
 npm-debug.log*
 .env.local
+public/config.js
 supabase/config.toml
+supabase/.temp/
