@@ -12,22 +12,23 @@ const HEADERS = {
 
 const DB_TABLES = {
   lois: {
-    name: "lois_ci",
+    name: "lois",
     columns: ["id", "name", "developer", "state", "clusterLead", "loiSignedDate", "jda", "jdaSignedDate", "notes"],
   },
   issues: {
-    name: "issues_ci",
+    name: "issues",
     columns: ["id", "loiId", "description", "owner", "raised", "due", "status"],
   },
 };
 
-const SETTINGS_TABLE = "settings_ci";
+const SETTINGS_TABLE = "settings";
 const SLA_KEY = "jda_sla_working_days";
 const DEFAULT_SLA_DAYS = 30;
 
-function assertCiTable(name) {
-  if (typeof name !== "string" || !name.endsWith("_ci")) {
-    throw new Error(`Refusing to access "${name}": this app only reads/writes tables with the _ci suffix.`);
+const ALLOWED_TABLES = new Set(["lois", "issues", "settings"]);
+function assertAllowedTable(name) {
+  if (!ALLOWED_TABLES.has(name)) {
+    throw new Error(`Refusing to access "${name}": this app only reads/writes lois, issues, settings.`);
   }
 }
 
@@ -49,7 +50,7 @@ function defaultRow(table, row) {
 async function dbGet(table) {
   if (!SUPABASE_URL || !SUPABASE_KEY) return null;
   const config = DB_TABLES[table];
-  assertCiTable(config?.name);
+  assertAllowedTable(config?.name);
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${config.name}?select=*&order=id.asc`, { headers: HEADERS });
   if (!res.ok) throw new Error(`GET ${config.name} failed: ${res.status} ${await res.text()}`);
   const rows = await res.json();
@@ -59,7 +60,7 @@ async function dbGet(table) {
 async function dbSet(table, payload) {
   if (!SUPABASE_URL || !SUPABASE_KEY) return;
   const config = DB_TABLES[table];
-  assertCiTable(config?.name);
+  assertAllowedTable(config?.name);
   const rows = payload.map(row => pickColumns(row, config.columns));
   const ids = rows.map(row => row.id).filter(id => id != null);
 
@@ -82,6 +83,7 @@ async function dbSet(table, payload) {
 
 async function settingGet(key) {
   if (!SUPABASE_URL || !SUPABASE_KEY) return null;
+  assertAllowedTable(SETTINGS_TABLE);
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${SETTINGS_TABLE}?key=eq.${encodeURIComponent(key)}&select=value`, { headers: HEADERS });
   if (!res.ok) throw new Error(`GET setting ${key} failed: ${res.status}`);
   const rows = await res.json();
@@ -90,6 +92,7 @@ async function settingGet(key) {
 
 async function settingSet(key, value) {
   if (!SUPABASE_URL || !SUPABASE_KEY) return;
+  assertAllowedTable(SETTINGS_TABLE);
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${SETTINGS_TABLE}?on_conflict=key`, {
     method: "POST",
     headers: { ...HEADERS, "Prefer": "resolution=merge-duplicates,return=minimal" },

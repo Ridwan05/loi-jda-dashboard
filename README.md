@@ -20,7 +20,7 @@ Open the URL printed in the terminal, usually `http://localhost:3000/`.
 
 ## Supabase
 
-1. Run `supabase-setup.sql` in Supabase Dashboard › SQL Editor. The script drops legacy C&I pipeline tables, then creates `lois_ci`, `issues_ci`, and `settings_ci`.
+1. Run `supabase-setup.sql` in Supabase Dashboard › SQL Editor. The script drops any legacy tables, then creates `lois`, `issues`, and `settings`. The app refuses to read or write any other table.
 2. Set Supabase credentials for the build (one of):
    - Run `./connect-supabase.ps1 -SupabaseUrl <url> -AnonKey <key>` to write `public/config.js` locally.
    - Or provide `SUPABASE_URL` and `SUPABASE_ANON_KEY` env vars to `node build.js`.
