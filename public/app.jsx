@@ -47,8 +47,14 @@ function defaultRow(table, row) {
   return { id: row.id, loiId: null, description: "", owner: "", raised: today(), due: "", status: "Open" };
 }
 
+function assertCreds() {
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    throw new Error("Supabase credentials missing — config.js failed to load or env vars are not set.");
+  }
+}
+
 async function dbGet(table) {
-  if (!SUPABASE_URL || !SUPABASE_KEY) return null;
+  assertCreds();
   const config = DB_TABLES[table];
   assertAllowedTable(config?.name);
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${config.name}?select=*&order=id.asc`, { headers: HEADERS });
@@ -58,7 +64,7 @@ async function dbGet(table) {
 }
 
 async function dbSet(table, payload) {
-  if (!SUPABASE_URL || !SUPABASE_KEY) return;
+  assertCreds();
   const config = DB_TABLES[table];
   assertAllowedTable(config?.name);
   const rows = payload.map(row => pickColumns(row, config.columns));
@@ -82,7 +88,7 @@ async function dbSet(table, payload) {
 }
 
 async function settingGet(key) {
-  if (!SUPABASE_URL || !SUPABASE_KEY) return null;
+  assertCreds();
   assertAllowedTable(SETTINGS_TABLE);
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${SETTINGS_TABLE}?key=eq.${encodeURIComponent(key)}&select=value`, { headers: HEADERS });
   if (!res.ok) throw new Error(`GET setting ${key} failed: ${res.status}`);
@@ -91,7 +97,7 @@ async function settingGet(key) {
 }
 
 async function settingSet(key, value) {
-  if (!SUPABASE_URL || !SUPABASE_KEY) return;
+  assertCreds();
   assertAllowedTable(SETTINGS_TABLE);
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${SETTINGS_TABLE}?on_conflict=key`, {
     method: "POST",
@@ -100,18 +106,6 @@ async function settingSet(key, value) {
   });
   if (!res.ok) throw new Error(`SET setting ${key} failed: ${res.status} - ${await res.text()}`);
 }
-
-// ─── SEED DATA (used only when DB is empty / offline) ─────────────────────────
-const SEED_LOIS = [
-  { id: 1, name: "Kwali Cluster", developer: "SolarNG Ltd", state: "FCT", clusterLead: "Amaka O.", loiSignedDate: "2026-04-10", jda: true, jdaSignedDate: "2026-05-08", notes: "" },
-  { id: 2, name: "Bwari Rural", developer: "GreenPower NG", state: "FCT", clusterLead: "Emeka T.", loiSignedDate: "2026-04-15", jda: false, jdaSignedDate: "", notes: "Counterparty signature delayed" },
-  { id: 3, name: "Kuje East", developer: "Volts Africa", state: "FCT", clusterLead: "Fatima K.", loiSignedDate: "2026-03-20", jda: false, jdaSignedDate: "", notes: "" },
-  { id: 4, name: "Nasarawa South", developer: "EnergyCo NG", state: "Nasarawa", clusterLead: "Amaka O.", loiSignedDate: "2026-05-05", jda: false, jdaSignedDate: "", notes: "" },
-];
-const SEED_ISSUES = [
-  { id: 1, loiId: 2, description: "Counterparty signature delayed — AgAssetCo chasing", owner: "Emeka T.", raised: "2026-04-20", due: "2026-05-10", status: "Open" },
-  { id: 2, loiId: 3, description: "Financial model v3 not received — blocks JDA submission", owner: "Fatima K.", raised: "2026-04-22", due: "2026-05-05", status: "Escalated" },
-];
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 const today = () => new Date().toISOString().split("T")[0];
@@ -153,8 +147,8 @@ const EDIT_BTN = { background: "#f0f4ff", border: "none", borderRadius: 6, paddi
 const DEL_BTN = { background: "#fff0f0", border: "none", borderRadius: 6, padding: "4px 8px", cursor: "pointer", fontSize: 12 };
 
 // ─── DB HOOK ──────────────────────────────────────────────────────────────────
-function useSupabaseTable(table, seed) {
-  const [data, setData] = useState(null);
+function useSupabaseTable(table) {
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -163,9 +157,9 @@ function useSupabaseTable(table, seed) {
     (async () => {
       try {
         const remote = await dbGet(table);
-        if (!cancelled) setData(remote && remote.length > 0 ? remote : seed);
+        if (!cancelled) setData(remote || []);
       } catch (e) {
-        if (!cancelled) { setError(e.message); setData(seed); }
+        if (!cancelled) { setError(e.message); setData([]); }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -285,8 +279,8 @@ function KpiCard({ label, value, sub, color }) {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 function App() {
-  const [lois, setLois, loisLoading, loisErr] = useSupabaseTable("lois", SEED_LOIS);
-  const [issues, setIssues, issuesLoading, issuesErr] = useSupabaseTable("issues", SEED_ISSUES);
+  const [lois, setLois, loisLoading, loisErr] = useSupabaseTable("lois");
+  const [issues, setIssues, issuesLoading, issuesErr] = useSupabaseTable("issues");
   const [slaDays, setSlaDays, slaLoading] = useSlaSetting();
 
   const loading = loisLoading || issuesLoading || slaLoading;
