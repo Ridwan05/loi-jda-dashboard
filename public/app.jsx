@@ -270,7 +270,7 @@ function Confirm({ message, onConfirm, onCancel }) {
 function KpiCard({ label, value, sub, color }) {
   return (
     <div style={{ background: "#fff", borderRadius: 10, padding: "16px 18px", borderLeft: `4px solid ${color}`, boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>
-      <div style={{ fontSize: 10, color: "#888", fontWeight: 700, letterSpacing: 1, marginBottom: 6 }}>{label.toUpperCase()}</div>
+      <div style={{ fontSize: 10, color: "#888", fontWeight: 700, letterSpacing: 1, marginBottom: 6 }}>{label}</div>
       <div style={{ fontSize: 28, fontWeight: 900, color: "#1a2a4a", lineHeight: 1 }}>{value}</div>
       {sub && <div style={{ fontSize: 10, color: "#888", marginTop: 4 }}>{sub}</div>}
     </div>
@@ -413,10 +413,10 @@ function App() {
 
         {/* KPI ROW */}
         <div className="rsp-kpis" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 24 }}>
-          <KpiCard label="LOIs Tracked" value={kpis.total} color="#3b6cb7" />
-          <KpiCard label="JDAs Signed" value={kpis.signed} sub={`${kpis.conversion}% conversion`} color="#3a9e5f" />
-          <KpiCard label="Pending JDA" value={kpis.total - kpis.signed} sub={`${kpis.openIssueLois} with open issues`} color="#d97706" />
-          <KpiCard label="Overdue" value={kpis.overdue} sub={`Past SLA of ${slaDays} working days`} color="#dc2626" />
+          <KpiCard label="LOIs TRACKED" value={kpis.total} color="#3b6cb7" />
+          <KpiCard label="JDAs SIGNED" value={kpis.signed} sub={`${kpis.conversion}% conversion`} color="#3a9e5f" />
+          <KpiCard label="PENDING JDA" value={kpis.total - kpis.signed} sub={`${kpis.openIssueLois} with open issues`} color="#d97706" />
+          <KpiCard label="OVERDUE" value={kpis.overdue} sub={`Past SLA of ${slaDays} working days`} color="#dc2626" />
         </div>
 
         {/* SLA SETTING */}
